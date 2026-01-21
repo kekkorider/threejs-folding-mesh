@@ -19,8 +19,9 @@ import * as THREE from 'three/webgpu'
 import { OrbitControls } from 'three/addons/controls/OrbitControls'
 
 import { useGSAP } from '@/composables/useGSAP'
-import { SampleTSLMaterial } from '@/assets/materials'
-import { gltfLoader } from '@/assets/loaders'
+import { FoldingMaterial } from '@/assets/materials'
+import { map as materialMap } from '@/assets/materials/FoldingMaterial'
+import { textureLoader } from '@/assets/loaders'
 
 const canvasRef = useTemplateRef('canvas')
 let perfPanel, scene, camera, renderer, mesh, controls
@@ -31,6 +32,8 @@ const params = useUrlSearchParams('history')
 
 const { gsap } = useGSAP()
 
+const textures = new Map()
+
 //
 // Lifecycle
 //
@@ -40,23 +43,13 @@ onMounted(async () => {
 	createScene()
 	createCamera()
 	await createRenderer()
+	await loadTextures()
 
 	createMesh()
-
-	await loadModel()
 
 	createControls()
 
 	gsap.ticker.fps(60)
-
-	gsap.ticker.add(time => {
-		perfPanel?.begin()
-
-		updateScene(time)
-		renderer.render(scene, camera)
-
-		perfPanel?.end()
-	})
 
 	if (Object.hasOwn(params, 'debug')) {
 		await import('@/assets/Debug')
@@ -72,6 +65,17 @@ onMounted(async () => {
 			})
 		}
 	}
+
+	await gsap.delayedCall(0.5, () => {})
+
+	gsap.ticker.add(time => {
+		perfPanel?.begin()
+
+		updateScene(time)
+		renderer.render(scene, camera)
+
+		perfPanel?.end()
+	})
 })
 
 //
@@ -93,7 +97,6 @@ watch([windowWidth, windowHeight], value => {
 //
 function updateScene(time = 0) {
 	controls?.update()
-	mesh.rotation.set(time * 0.2, time * 0.13, time * 0.17)
 }
 
 function createScene() {
@@ -131,14 +134,14 @@ async function createRenderer() {
 	await renderer.init()
 }
 
-async function loadModel() {
-	const gltf = await gltfLoader.load('/monkey.glb')
-	const model = gltf.scene.getObjectByName('Suzanne')
+async function loadTextures() {
+	const texture = await textureLoader.load(
+		'/pexels-anderson-alves-2158767102-35601549.jpg',
+	)
 
-	model.material = SampleTSLMaterial
-	model.position.x = 1
+	textures.set('map', texture)
 
-	scene.add(model)
+	materialMap.value = textures.get('map')
 }
 
 function createControls() {
@@ -147,11 +150,10 @@ function createControls() {
 }
 
 function createMesh() {
-	const geometry = new THREE.BoxGeometry()
-	const material = SampleTSLMaterial
+	const geometry = new THREE.PlaneGeometry(1.28, 1.92, 10, 100)
+	const material = FoldingMaterial
 
 	mesh = new THREE.Mesh(geometry, material)
-	mesh.position.x = -1
 
 	scene.add(mesh)
 }

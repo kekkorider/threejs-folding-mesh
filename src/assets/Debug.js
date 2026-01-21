@@ -1,9 +1,9 @@
 import { Pane } from 'tweakpane'
 
-import { scale } from '@/assets/materials/SampleTSLMaterial'
+import { progress } from '@/assets/materials/FoldingMaterial'
 
 const pane = new Pane({
   container: document.getElementById('tweakpane-container'),
 })
 
-pane.addBinding(scale, 'value', { label: 'Mesh scale', min: 0.25, max: 1.5, step: 0.01 })
+pane.addBinding(progress, 'value', { label: 'Progress', min: 0, max: 1, step: 0.01 })
