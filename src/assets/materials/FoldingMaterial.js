@@ -9,6 +9,7 @@ const dummyTexture = new DataTexture(
 dummyTexture.needsUpdate = true
 
 export const map = texture(dummyTexture)
+export const mapB = texture(dummyTexture)
 export const FoldingMaterial = new MeshBasicNodeMaterial({
   side: DoubleSide,
   forceSinglePass: true,
@@ -57,6 +58,10 @@ FoldingMaterial.positionNode = Fn(() => {
 })()
 
 FoldingMaterial.colorNode = Fn(() => {
-  const uvMap = select(frontFacing, uv(), vec2(uv().x, uv().y.oneMinus()))
-  return texture(map, uvMap).toVec4()
+  const selectedUV = select(frontFacing, uv(), vec2(uv().x, uv().y.oneMinus()))
+
+  const texA = texture(map, selectedUV)
+  const texB = texture(mapB, selectedUV)
+
+  return select(frontFacing, texA, texB)
 })()

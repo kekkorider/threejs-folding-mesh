@@ -20,7 +20,10 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls'
 
 import { useGSAP } from '@/composables/useGSAP'
 import { FoldingMaterial } from '@/assets/materials'
-import { map as materialMap } from '@/assets/materials/FoldingMaterial'
+import {
+	map as materialMap,
+	mapB as materialMapB,
+} from '@/assets/materials/FoldingMaterial'
 import { textureLoader } from '@/assets/loaders'
 
 const canvasRef = useTemplateRef('canvas')
@@ -135,13 +138,16 @@ async function createRenderer() {
 }
 
 async function loadTextures() {
-	const texture = await textureLoader.load(
+	const [mapA, mapB] = await textureLoader.load([
 		'/pexels-anderson-alves-2158767102-35601549.jpg',
-	)
+		'/pexels-diana-reyes-227887231-35571707.jpg',
+	])
 
-	textures.set('map', texture)
+	textures.set('mapA', mapA)
+	textures.set('mapB', mapB)
 
-	materialMap.value = textures.get('map')
+	materialMap.value = textures.get('mapA')
+	materialMapB.value = textures.get('mapB')
 }
 
 function createControls() {
@@ -150,7 +156,7 @@ function createControls() {
 }
 
 function createMesh() {
-	const geometry = new THREE.PlaneGeometry(1.28, 1.92, 10, 100)
+	const geometry = new THREE.PlaneGeometry(1.28, 1.92, 40, 100)
 	const material = FoldingMaterial
 
 	mesh = new THREE.Mesh(geometry, material)
